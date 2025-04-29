@@ -1,0 +1,74 @@
+{
+  "name": "cosmojs",
+  "version": "1.0.0",
+  "author": "Ridel Saavedra Flores - shakar",
+  "keywords": [],
+  "license": "ISC",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "start:electron": "electron dist/main/main.js",
+    "dev": "concurrently -k \"yarn build:main && yarn start:electron\" \"yarn dev:renderer\"",
+    "dev:renderer": "cd renderer && yarn  dev",
+    "build:main": "tsc && yarn copy-assets",
+    "build:renderer": "cd renderer && yarn build",
+    "dist": "yarn build:renderer && yarn build:main && electron-builder",
+    "copy-assets": "cpx \"assets/**/*\" dist/assets"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/semver": "^7.7.0",
+    "concurrently": "^9.1.2",
+    "cpx": "^1.5.0",
+    "electron": "^35.2.1",
+    "electron-builder": "^26.0.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2",
+    "vm2": "^3.9.19"
+  },
+  "build": {
+    "appId": "com.cosmoframeworks.cosmojs",
+    "productName": "CosmoJS",
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "dist/**/*",
+      "renderer/dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "assets/app-icon.ico",
+      "artifactName": "CosmoJS.exe",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "CosmoJS",
+      "installerSidebar": "assets/installer-sidebar.bmp",
+      "uninstallerSidebar": "assets/uninstaller-sidebar.bmp"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "cosmo-frameworks",
+        "repo": "cosmojs"
+      }
+    ]
+  }
+}
