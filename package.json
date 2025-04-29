@@ -11,7 +11,9 @@
     "dev:renderer": "cd renderer && yarn  dev",
     "build:main": "tsc && yarn copy-assets",
     "build:renderer": "cd renderer && yarn build",
-    "dist": "yarn build:renderer && yarn build:main && electron-builder",
+    "release": "yarn version:prompt && yarn dist:publish",
+    "version:prompt": "node tools/bump-version.js",
+    "dist:publish": "yarn build:renderer && yarn build:main && electron-builder --publish=always",
     "copy-assets": "cpx \"assets/**/*\" dist/assets"
   },
   "devDependencies": {
