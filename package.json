@@ -8,7 +8,7 @@
   "scripts": {
     "start:electron": "electron dist/main/main.js",
     "dev": "concurrently -k \"yarn build:main && yarn start:electron\" \"yarn dev:renderer\"",
-    "dev:renderer": "cd renderer && yarn  dev",
+    "dev:renderer": "cd renderer && yarn dev",
     "build:main": "tsc && yarn copy-assets",
     "build:renderer": "cd renderer && yarn build",
     "release": "yarn version:prompt && yarn dist:publish",
