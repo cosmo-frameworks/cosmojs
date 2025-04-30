@@ -1,8 +1,18 @@
+import { useTheme } from "../hooks/useTheme";
+
 export const Header = () => {
+  const { current } = useTheme();
+
   return (
     <div
       className="flex justify-between items-center px-4 py-2 bg-[#212121] border-b border-gray-700"
-      style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
+      style={
+        {
+          WebkitAppRegion: "drag",
+          backgroundColor: current.ui.panel,
+          color: current.ui.text,
+        } as React.CSSProperties
+      }
     >
       <div className="text-sm"></div>
       <div style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}>

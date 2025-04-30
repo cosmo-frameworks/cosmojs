@@ -2,6 +2,8 @@ import { Play, StopCircle, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 import { FC } from "react";
 
+import { useTheme } from "../hooks/useTheme";
+
 interface SidebarPropsI {
   onRun: () => void;
   onStop: () => void;
@@ -13,13 +15,16 @@ export const Sidebar: FC<SidebarPropsI> = ({
   onStop,
   onToggleSettings,
 }) => {
+  const { current } = useTheme();
+
   return (
     <motion.div
       initial={{ x: -80, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: -80, opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="w-14 bg-[#212121] flex flex-col justify-between py-4 items-center border-r border-gray-700"
+      style={{ backgroundColor: current.ui.panel, color: current.ui.text }}
+      className="w-14 flex flex-col justify-between py-4 items-center border-r border-gray-700"
     >
       <div className="flex flex-col gap-4">
         <button

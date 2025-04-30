@@ -3,16 +3,20 @@ import { Palette, Keyboard, X } from "lucide-react";
 import clsx from "clsx";
 
 import { useSettings } from "../hooks/useSettings";
+import { useTheme } from "../hooks/useTheme";
+
+import { themes } from "../themes/themeDefinitions";
 
 interface SettingsModalPropsI {
   visible: boolean;
   onClose: () => void;
 }
 
-export const SettingsModal: FC<SettingsModalPropsI> = ({ visible, onClose }) => {
+export const SettingsModal: FC<SettingsModalPropsI> = ({
+  visible,
+  onClose,
+}) => {
   const {
-    theme,
-    setTheme,
     autoRun,
     setAutoRun,
     showLineNumbers,
@@ -22,6 +26,7 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({ visible, onClose }) => 
     showActivityBar,
     setShowActivityBar,
   } = useSettings();
+  const { current, setTheme } = useTheme();
 
   const [tab, setTab] = useState<"appearance" | "shortcuts">("appearance");
 
@@ -72,12 +77,15 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({ visible, onClose }) => 
               <div>
                 <label className="block text-sm font-medium mb-1">Tema</label>
                 <select
-                  value={theme}
-                  onChange={(e) => setTheme(e.target.value as "light" | "dark")}
+                  value={current.name}
+                  onChange={(e) => setTheme(e.target.value)}
                   className="w-full bg-white border px-2 py-1 rounded"
                 >
-                  <option value="dark">Oscuro</option>
-                  <option value="light">Claro</option>
+                  {themes.map((t) => (
+                    <option key={t.name} value={t.name}>
+                      {t.label} {t.pro && "🔒"}
+                    </option>
+                  ))}
                 </select>
               </div>
 
