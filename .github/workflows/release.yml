@@ -19,7 +19,10 @@ jobs:
           node-version: 20
 
       - name: 📦 Install dependencies
-        run: yarn install
+        run: |
+          yarn install
+          cd renderer
+          yarn install
 
       - name: 🛠️ Build and Publish with Electron Builder
         run: yarn build:release
