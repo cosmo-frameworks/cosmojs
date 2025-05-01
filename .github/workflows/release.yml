@@ -23,6 +23,8 @@ jobs:
 
       - name: 🛠️ Build app
         run: yarn publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🚀 Publish Release to GitHub
         uses: softprops/action-gh-release@v1
