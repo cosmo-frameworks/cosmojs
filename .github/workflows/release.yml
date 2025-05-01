@@ -22,7 +22,7 @@ jobs:
         run: yarn install
 
       - name: 🛠️ Build app
-        run: yarn dist:publish
+        run: yarn publish
 
       - name: 🚀 Publish Release to GitHub
         uses: softprops/action-gh-release@v1
