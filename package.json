@@ -1,9 +1,10 @@
 {
   "name": "cosmojs",
   "version": "1.0.0",
-  "author": "Ridel Saavedra Flores - shakar",
+  "author": "Ridel Saavedra Flores <cosmoframeworks@gmail.com>",
+  "private": true,
+  "license": "Proprietary",
   "keywords": [],
-  "license": "ISC",
   "main": "dist/main/main.js",
   "scripts": {
     "start:electron": "electron dist/main/main.js",

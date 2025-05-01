@@ -11,53 +11,52 @@ import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useSettings } from "./hooks/useSettings";
 import { useUpdateNotification } from "./hooks/useUpdateNotification";
 import { useTheme } from "./hooks/useTheme";
+import { useTabs } from "./hooks/useTabs";
 
 export const App = () => {
   const { autoRun, showActivityBar } = useSettings();
   const { updateAvailable, triggerUpdate, progress } = useUpdateNotification();
   const { current } = useTheme();
 
-  const [code, setCode] = useState("// Escribe tu código aquí");
-  const [output, setOutput] = useState("");
-  const [hasRun, setHasRun] = useState(false);
+  const { activeTab, updateActiveTab } = useTabs();
+
   const [showSettings, setShowSettings] = useState(false);
 
   const runCode = async (inputCode: string) => {
-    const trimmedCode = inputCode.trim();
+    const trimmed = inputCode.trim();
     if (
-      !trimmedCode ||
-      trimmedCode
+      !trimmed ||
+      trimmed
         .split("\n")
         .every((line) => line.trim().startsWith("//") || line.trim() === "")
     ) {
-      setOutput("");
-      setHasRun(false);
+      updateActiveTab({ output: "", hasRun: false });
       return;
     }
 
     try {
       const result = await window.api.runCode(inputCode);
-      setOutput(result);
-      setHasRun(true);
+      updateActiveTab({ output: result, hasRun: true });
     } catch (err) {
-      setOutput(String(err));
-      setHasRun(true);
+      updateActiveTab({ output: String(err), hasRun: true });
     }
   };
 
   const clearOutput = () => {
-    setOutput("");
-    setHasRun(false);
+    updateActiveTab({ output: "", hasRun: false });
   };
 
+  // Atajos de teclado
   useKeyboardShortcuts({
-    onRun: () => runCode(code),
+    onRun: () => runCode(activeTab.code),
     onStop: clearOutput,
   });
 
+  // Auto-run
   useEffect(() => {
     if (!autoRun) return;
-    const trimmed = code.trim();
+
+    const trimmed = activeTab.code.trim();
     if (
       !trimmed ||
       trimmed
@@ -66,14 +65,15 @@ export const App = () => {
     )
       return;
 
-    const timeout = setTimeout(() => runCode(code), 500);
+    const timeout = setTimeout(() => runCode(activeTab.code), 500);
     return () => clearTimeout(timeout);
-  }, [code, autoRun]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab.code, autoRun]);
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={current.name} // 👉 cambia con cada tema
+        key={current.name}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -86,7 +86,7 @@ export const App = () => {
       >
         {showActivityBar && (
           <Sidebar
-            onRun={() => runCode(code)}
+            onRun={() => runCode(activeTab.code)}
             onStop={clearOutput}
             onToggleSettings={() => setShowSettings(true)}
           />
@@ -95,8 +95,11 @@ export const App = () => {
         <div className="flex-1 flex flex-col">
           <Header />
           <div className="flex flex-1 overflow-hidden">
-            <EditorPanel code={code} setCode={setCode} />
-            <OutputPanel output={output} hasRun={hasRun} />
+            <EditorPanel
+              code={activeTab.code}
+              setCode={(code) => updateActiveTab({ code })}
+            />
+            <OutputPanel output={activeTab.output} hasRun={activeTab.hasRun} />
           </div>
         </div>
 
@@ -118,10 +121,8 @@ export const App = () => {
                 🚀 ¡Nueva versión disponible!
               </div>
 
-              {/* Mostrar progreso mientras descarga */}
               {progress > 0 && progress < 100 ? (
                 <div className="flex flex-col gap-2">
-                  {/* Barra de progreso */}
                   <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
                     <motion.div
                       className="bg-runjsAccent h-full"
@@ -130,13 +131,11 @@ export const App = () => {
                       transition={{ ease: "easeOut", duration: 0.2 }}
                     />
                   </div>
-                  {/* Texto pequeño */}
                   <div className="text-xs text-gray-400 text-right">
                     Descargando... {Math.round(progress)}%
                   </div>
                 </div>
               ) : (
-                /* Cuando termina de descargar */
                 <motion.button
                   initial={{ scale: 0.8 }}
                   animate={{ scale: 1 }}

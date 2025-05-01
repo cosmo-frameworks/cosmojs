@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 
 import { SettingsProvider } from "./context/SettingsContext.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
+import { TabsProvider } from "./context/TabsContext.tsx";
 
 import { App } from "./App.tsx";
 
@@ -12,7 +13,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <SettingsProvider>
       <ThemeProvider>
-        <App />
+        <TabsProvider>
+          <App />
+        </TabsProvider>
       </ThemeProvider>
     </SettingsProvider>
   </StrictMode>
