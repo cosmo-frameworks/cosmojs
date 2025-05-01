@@ -30,6 +30,10 @@
     "electron-updater": "^6.6.2",
     "vm2": "^3.9.19"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cosmo-frameworks/cosmojs.git"
+  },
   "build": {
     "appId": "com.cosmoframeworks.cosmojs",
     "productName": "CosmoJS",
