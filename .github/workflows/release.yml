@@ -22,6 +22,6 @@ jobs:
         run: yarn install
 
       - name: 🛠️ Build and Publish with Electron Builder
-        run: yarn publish
+        run: yarn build:release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
