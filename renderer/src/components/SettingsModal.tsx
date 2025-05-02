@@ -61,7 +61,7 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
             <span className="text-sm font-semibold text-gray-700">Ajustes</span>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-red-500"
+              className="text-gray-500 hover:text-red-500 cursor-pointer"
             >
               <X size={16} />
             </button>
