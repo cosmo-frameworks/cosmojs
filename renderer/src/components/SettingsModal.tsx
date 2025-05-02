@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { Palette, Keyboard, X } from "lucide-react";
+import { Palette, X } from "lucide-react";
 import clsx from "clsx";
 
 import { useSettings } from "../hooks/useSettings";
@@ -28,28 +28,12 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
   } = useSettings();
   const { current, setTheme } = useTheme();
 
-  const [tab, setTab] = useState<"appearance" | "shortcuts" | "ai">(
-    "appearance"
-  );
-
-  /* const [openaiKey, setOpenaiKey] = useState("");
-  const [openaiModel, setOpenaiModel] = useState("gpt-3.5-turbo");
-
-  useEffect(() => {
-    setOpenaiKey(localStorage.getItem("openai_key") || "");
-    setOpenaiModel(localStorage.getItem("openai_model") || "gpt-3.5-turbo");
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("openai_key", openaiKey);
-    localStorage.setItem("openai_model", openaiModel);
-  }, [openaiKey, openaiModel]); */
+  const [tab, setTab] = useState<"appearance">("appearance");
 
   if (!visible) return null;
 
   const tabs = [
     { key: "appearance", label: "Apariencia", icon: <Palette size={16} /> },
-    { key: "shortcuts", label: "Atajos", icon: <Keyboard size={16} /> },
   ];
 
   return (
@@ -141,58 +125,6 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
               </div>
             </div>
           )}
-
-          {tab === "shortcuts" && (
-            <div className="space-y-2">
-              <h3 className="font-semibold text-gray-700 mb-2">
-                Atajos disponibles
-              </h3>
-              <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                <li>
-                  <b>Ctrl + Shift + R</b> — Ejecutar código
-                </li>
-                <li>
-                  <b>Ctrl + Shift + S</b> — Detener ejecución
-                </li>
-                <li>
-                  <b>⚙️</b> — Abrir configuración
-                </li>
-              </ul>
-            </div>
-          )}
-
-          {/* {tab === "ai" && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-gray-700 mb-2">
-                Configuración IA
-              </h3>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Clave de OpenAI
-                </label>
-                <input
-                  type="password"
-                  value={openaiKey}
-                  onChange={(e) => setOpenaiKey(e.target.value)}
-                  className="w-full bg-white border px-2 py-1 rounded"
-                  placeholder="sk-..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Modelo</label>
-                <select
-                  value={openaiModel}
-                  onChange={(e) => setOpenaiModel(e.target.value)}
-                  className="w-full bg-white border px-2 py-1 rounded"
-                >
-                  <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                  <option value="gpt-4">gpt-4</option>
-                </select>
-              </div>
-            </div>
-          )} */}
         </div>
       </div>
     </div>

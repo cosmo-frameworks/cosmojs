@@ -31,14 +31,14 @@ export const Sidebar: FC<SidebarPropsI> = ({
       <div className="flex flex-col gap-4">
         <button
           onClick={onRun}
-          title="Ejecutar (Ctrl+Enter)"
+          title="Ejecutar"
           className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
         >
           <Play size={20} />
         </button>
         <button
           onClick={onStop}
-          title="Parar (Ctrl+Backspace)"
+          title="Detener"
           className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
         >
           <StopCircle size={20} />
