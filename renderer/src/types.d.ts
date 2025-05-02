@@ -3,7 +3,9 @@ export {};
 declare global {
   interface Window {
     api: {
-      runCode: (code: string) => Promise<string>;
+      runCode: (
+        code: string
+      ) => Promise<{ logs: any[]; result: any; error: string | null }>;
       send: (channel: string, data?: any) => void;
       on: (channel: string, callback: (...args: any[]) => void) => void;
       off: (channel: string, callback: (...args: any[]) => void) => void;

@@ -1,7 +1,12 @@
 import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("api", {
-  runCode: (code: string) => ipcRenderer.invoke("run-code", code),
+  runCode: (code: string) =>
+    ipcRenderer.invoke("run-code", code) as Promise<{
+      logs: any[];
+      result: any;
+      error: string | null;
+    }>,
   send: (channel: string, data?: any) => {
     ipcRenderer.send(channel, data);
   },

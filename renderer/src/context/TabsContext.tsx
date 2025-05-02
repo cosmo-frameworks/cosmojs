@@ -5,7 +5,7 @@ export interface Tab {
   id: string;
   name?: string;
   code: string;
-  output: string;
+  output: string | { logs: any[]; result: any; error: string | null };
   hasRun: boolean;
 }
 

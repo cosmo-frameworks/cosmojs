@@ -144,34 +144,52 @@ ipcMain.handle("export-file", async (_event, code: string) => {
 // Eventos para ejecutar código seguro
 ipcMain.handle("run-code", async (_event, code: string) => {
   try {
-    let logs: string[] = [];
+    const logs: any[] = [];
 
     const vm = new VM({
       timeout: 1000,
       sandbox: {
         console: {
-          log: (...args: any[]) => logs.push(args.join(" ")),
+          log: (...args: any[]) => {
+            const safeArgs = args.map((arg) => {
+              try {
+                return JSON.parse(JSON.stringify(arg)); // convierte a objeto plano
+              } catch {
+                return String(arg);
+              }
+            });
+            logs.push(...safeArgs); // guarda los logs como array de objetos
+          },
         },
       },
     });
 
     const wrappedCode = `(function() { ${code} })()`;
-
     const result = vm.run(wrappedCode);
 
-    let output = "";
+    let safeResult = undefined;
 
-    if (logs.length) output += logs.join("\n");
-
-    if (result !== undefined) {
-      output +=
-        (logs.length ? "\n" : "") +
-        `=> ${typeof result === "string" ? result : JSON.stringify(result)}`;
+    try {
+      if (result !== undefined) {
+        safeResult = JSON.parse(JSON.stringify(result));
+      }
+    } catch {
+      if (result !== undefined) {
+        safeResult = String(result);
+      }
     }
 
-    return output || "undefined";
+    return {
+      logs,
+      result: safeResult,
+      error: null,
+    };
   } catch (err) {
-    return `Error: ${err}`;
+    return {
+      logs: [],
+      result: null,
+      error: String(err),
+    };
   }
 });
 

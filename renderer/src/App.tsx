@@ -34,10 +34,25 @@ export const App = () => {
     }
 
     try {
-      const result = await window.api.runCode(inputCode);
-      updateActiveTab({ output: result, hasRun: true });
+      const response = await window.api.runCode(inputCode);
+
+      // fallback si sigue viniendo un string
+      if (typeof response === "string") {
+        updateActiveTab({ output: response, hasRun: true });
+        return;
+      }
+
+      const { logs, result, error } = response;
+
+      updateActiveTab({
+        output: { logs, result, error },
+        hasRun: true,
+      });
     } catch (err) {
-      updateActiveTab({ output: String(err), hasRun: true });
+      updateActiveTab({
+        output: { logs: [], result: null, error: String(err) },
+        hasRun: true,
+      });
     }
   };
 
