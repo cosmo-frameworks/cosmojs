@@ -1,8 +1,9 @@
 import { FC } from "react";
 
+import { ObjectInspector } from "./ObjectInspector";
+
 import { useSettings } from "../hooks/useSettings";
 import { useTheme } from "../hooks/useTheme";
-import { ObjectInspector } from "./ObjectInspector";
 
 interface OutputPanelPropsI {
   output: string | { logs: any[]; result: any; error: string | null };
