@@ -142,54 +142,72 @@ ipcMain.handle("export-file", async (_event, code: string) => {
 });
 
 // Eventos para ejecutar código seguro
-ipcMain.handle("run-code", async (_event, code: string) => {
+ipcMain.handle("run-code", async (_e, code: string) => {
+  const serialize = (value: any, seen = new WeakMap()): any => {
+    if (value === null || typeof value !== "object") {
+      if (typeof value === "function")
+        return `[Function ${value.name || "anonymous"}]`;
+      return value; // primitivos OK
+    }
+    if (seen.has(value)) return "[Circular]"; // corta ciclos
+    seen.set(value, true);
+
+    // Tipos built‑in
+    if (value instanceof Date)
+      return { __type: "Date", value: value.toISOString() };
+    if (value instanceof RegExp)
+      return { __type: "RegExp", value: value.toString() };
+    if (value instanceof Map) {
+      return {
+        __type: "Map",
+        value: Array.from(value.entries()).map(([k, v]) => [
+          serialize(k, seen),
+          serialize(v, seen),
+        ]),
+      };
+    }
+    if (value instanceof Set) {
+      return {
+        __type: "Set",
+        value: Array.from(value).map((v) => serialize(v, seen)),
+      };
+    }
+    if (ArrayBuffer.isView(value)) {
+      return {
+        __type: value.constructor.name,
+        value: Array.from(value as any),
+      };
+    }
+
+    // Objetos / arrays normales
+    const out: any = Array.isArray(value) ? [] : {};
+    Reflect.ownKeys(value).forEach((k) => {
+      out[k as any] = serialize((value as any)[k], seen);
+    });
+    return out;
+  };
+
   try {
     const logs: any[] = [];
 
     const vm = new VM({
-      timeout: 1000,
+      timeout: 1_000,
       sandbox: {
         console: {
-          log: (...args: any[]) => {
-            const safeArgs = args.map((arg) => {
-              try {
-                return JSON.parse(JSON.stringify(arg)); // convierte a objeto plano
-              } catch {
-                return String(arg);
-              }
-            });
-            logs.push(...safeArgs); // guarda los logs como array de objetos
-          },
+          log: (...args: any[]) => logs.push(...args.map((a) => serialize(a))),
         },
       },
     });
 
-    const wrappedCode = `(function() { ${code} })()`;
-    const result = vm.run(wrappedCode);
-
-    let safeResult = undefined;
-
-    try {
-      if (result !== undefined) {
-        safeResult = JSON.parse(JSON.stringify(result));
-      }
-    } catch {
-      if (result !== undefined) {
-        safeResult = String(result);
-      }
-    }
+    const result = vm.run(`(function () { ${code} })()`);
 
     return {
       logs,
-      result: safeResult,
+      result: result === undefined ? undefined : serialize(result),
       error: null,
     };
   } catch (err) {
-    return {
-      logs: [],
-      result: null,
-      error: String(err),
-    };
+    return { logs: [], result: null, error: String(err) };
   }
 });
 
