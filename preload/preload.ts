@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld("api", {
   off: (channel: string, callback: (...args: any[]) => void) => {
     ipcRenderer.removeListener(channel, callback);
   },
+  importFile: () => ipcRenderer.invoke("import-file"),
+  exportFile: (code: string) => ipcRenderer.invoke("export-file", code),
   windowControls: {
     minimize: () => ipcRenderer.send("window:minimize"),
     maximize: () => ipcRenderer.send("window:maximize"),

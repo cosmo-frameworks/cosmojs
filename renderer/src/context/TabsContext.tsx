@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 
 export interface Tab {
   id: string;
+  name?: string;
   code: string;
   output: string;
   hasRun: boolean;
@@ -17,6 +18,7 @@ interface TabsContextValue {
   updateActiveTab: (changes: Partial<Tab>) => void;
   addTab: () => void;
   closeTab: (id: string) => void;
+  createTabFromImport: (args: { name: string; code: string }) => void; // nuevo
 }
 
 const TabsContext = createContext<TabsContextValue | undefined>(undefined);
@@ -28,6 +30,25 @@ const TabsProvider = ({ children }: { children: ReactNode }) => {
     output: "",
     hasRun: false,
   });
+
+  const createTabFromImport = ({
+    name,
+    code,
+  }: {
+    name: string;
+    code: string;
+  }) => {
+    const newTab: Tab = {
+      id: nanoid(),
+      name,
+      code,
+      output: "",
+      hasRun: false,
+    };
+
+    setTabs((prev) => [...prev, newTab]);
+    setActiveId(newTab.id);
+  };
 
   const [tabs, setTabs] = useState<Tab[]>([createTab()]);
   const [activeId, setActiveId] = useState(tabs[0].id);
@@ -76,6 +97,7 @@ const TabsProvider = ({ children }: { children: ReactNode }) => {
         updateActiveTab,
         addTab,
         closeTab,
+        createTabFromImport,
       }}
     >
       {children}

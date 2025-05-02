@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { VM } from "vm2";
+import { dialog } from "electron";
 import { autoUpdater } from "electron-updater";
+import fs from "fs";
 import path from "path";
 
 const isDev = !app.isPackaged;
@@ -35,6 +37,7 @@ function createWindow() {
     icon: path.join(__dirname, "../assets/app-icon.png"),
     show: false,
     webPreferences: {
+      devTools: isDev,
       preload: path.join(__dirname, "../preload/preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
@@ -110,6 +113,32 @@ autoUpdater.on("download-progress", (progressObj) => {
 
 ipcMain.on("install-update", () => {
   autoUpdater.quitAndInstall();
+});
+
+ipcMain.handle("import-file", async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    filters: [{ name: "Archivos", extensions: ["js", "json"] }],
+    properties: ["openFile"],
+  });
+
+  if (canceled || filePaths.length === 0) return null;
+
+  const filePath = filePaths[0];
+  const content = fs.readFileSync(filePath, "utf-8");
+  const name = path.basename(filePath);
+  return { code: content, name };
+});
+
+ipcMain.handle("export-file", async (_event, code: string) => {
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    title: "Guardar código como archivo",
+    defaultPath: "codigo.js",
+    filters: [{ name: "Archivos JS", extensions: ["js", "json"] }],
+  });
+
+  if (canceled || !filePath) return;
+
+  fs.writeFileSync(filePath, code, "utf-8");
 });
 
 // Eventos para ejecutar código seguro

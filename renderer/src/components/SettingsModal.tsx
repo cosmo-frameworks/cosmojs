@@ -28,7 +28,22 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
   } = useSettings();
   const { current, setTheme } = useTheme();
 
-  const [tab, setTab] = useState<"appearance" | "shortcuts">("appearance");
+  const [tab, setTab] = useState<"appearance" | "shortcuts" | "ai">(
+    "appearance"
+  );
+
+  /* const [openaiKey, setOpenaiKey] = useState("");
+  const [openaiModel, setOpenaiModel] = useState("gpt-3.5-turbo");
+
+  useEffect(() => {
+    setOpenaiKey(localStorage.getItem("openai_key") || "");
+    setOpenaiModel(localStorage.getItem("openai_model") || "gpt-3.5-turbo");
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("openai_key", openaiKey);
+    localStorage.setItem("openai_model", openaiModel);
+  }, [openaiKey, openaiModel]); */
 
   if (!visible) return null;
 
@@ -145,6 +160,39 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
               </ul>
             </div>
           )}
+
+          {/* {tab === "ai" && (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-gray-700 mb-2">
+                Configuración IA
+              </h3>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Clave de OpenAI
+                </label>
+                <input
+                  type="password"
+                  value={openaiKey}
+                  onChange={(e) => setOpenaiKey(e.target.value)}
+                  className="w-full bg-white border px-2 py-1 rounded"
+                  placeholder="sk-..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Modelo</label>
+                <select
+                  value={openaiModel}
+                  onChange={(e) => setOpenaiModel(e.target.value)}
+                  className="w-full bg-white border px-2 py-1 rounded"
+                >
+                  <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                  <option value="gpt-4">gpt-4</option>
+                </select>
+              </div>
+            </div>
+          )} */}
         </div>
       </div>
     </div>

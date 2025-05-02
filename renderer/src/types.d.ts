@@ -1,4 +1,3 @@
-// renderer/src/types.d.ts
 export {};
 
 declare global {
@@ -8,6 +7,8 @@ declare global {
       send: (channel: string, data?: any) => void;
       on: (channel: string, callback: (...args: any[]) => void) => void;
       off: (channel: string, callback: (...args: any[]) => void) => void;
+      importFile: () => Promise<{ code: string; name: string } | null>;
+      exportFile: (code: string) => Promise<void>;
       windowControls: {
         minimize: () => void;
         maximize: () => void;

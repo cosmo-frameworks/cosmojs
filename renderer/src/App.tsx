@@ -17,8 +17,7 @@ export const App = () => {
   const { autoRun, showActivityBar } = useSettings();
   const { updateAvailable, triggerUpdate, progress } = useUpdateNotification();
   const { current } = useTheme();
-
-  const { activeTab, updateActiveTab } = useTabs();
+  const { activeTab, updateActiveTab, createTabFromImport } = useTabs();
 
   const [showSettings, setShowSettings] = useState(false);
 
@@ -67,8 +66,20 @@ export const App = () => {
 
     const timeout = setTimeout(() => runCode(activeTab.code), 500);
     return () => clearTimeout(timeout);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab.code, autoRun]);
+  }, [activeTab.code, activeTab.id, autoRun]);
+
+  useEffect(() => {
+    const handleImport = (e: Event) => {
+      const { code, name } = (e as CustomEvent<{ code: string; name: string }>)
+        .detail;
+      createTabFromImport({ code, name });
+    };
+
+    window.addEventListener("imported-code", handleImport);
+    return () => window.removeEventListener("imported-code", handleImport);
+  }, [createTabFromImport]);
 
   return (
     <AnimatePresence mode="wait">
