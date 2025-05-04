@@ -2,10 +2,22 @@ import { FileText, Plus, X } from "lucide-react";
 
 import { useTheme } from "../hooks/useTheme";
 import { useTabs } from "../hooks/useTabs";
+import { useLicense } from "../hooks/useLicense";
+import { useSettings } from "../hooks/useSettings";
 
 export const Header = () => {
   const { current } = useTheme();
+  const { info } = useLicense();
   const { tabs, activeId, setActiveId, closeTab, addTab } = useTabs();
+  const { handleToggleLicenseModal } = useSettings();
+
+  const handleAddTab = () => {
+    if (info.plan === "free" && tabs.length === 3) {
+      handleToggleLicenseModal();
+    } else {
+      addTab();
+    }
+  };
 
   return (
     <div
@@ -49,7 +61,7 @@ export const Header = () => {
         ))}
 
         <button
-          onClick={addTab}
+          onClick={handleAddTab}
           className="ml-2 p-1 rounded hover:text-white text-gray-400 cursor-pointer"
         >
           <Plus size={16} />

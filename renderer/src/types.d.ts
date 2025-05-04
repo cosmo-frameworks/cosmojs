@@ -11,6 +11,9 @@ declare global {
       off: (channel: string, callback: (...args: any[]) => void) => void;
       importFile: () => Promise<{ code: string; name: string } | null>;
       exportFile: (code: string) => Promise<void>;
+      activateLicense: (key: string) => Promise<any>;
+      getStoredLicense: () => Promise<any>;
+      removeLicense: () => Promise<any>;
       windowControls: {
         minimize: () => void;
         maximize: () => void;

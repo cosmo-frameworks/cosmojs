@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, FC, useEffect, useState } from "react";
 
 interface SettingsContextType {
   autoRun: boolean;
@@ -9,17 +9,25 @@ interface SettingsContextType {
   setHighlightActiveLine: (v: boolean) => void;
   showActivityBar: boolean;
   setShowActivityBar: (v: boolean) => void;
+  showLicenseModal: boolean;
+  setShowLicenseModal: (v: boolean) => void;
+  handleToggleLicenseModal: () => void;
+}
+
+interface SettingsProviderPropsI {
+  children: React.ReactNode;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
   undefined
 );
 
-const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
+const SettingsProvider: FC<SettingsProviderPropsI> = ({ children }) => {
   const [autoRun, setAutoRun] = useState(true);
   const [showLineNumbers, setShowLineNumbers] = useState(true);
   const [highlightActiveLine, setHighlightActiveLine] = useState(true);
   const [showActivityBar, setShowActivityBar] = useState(true);
+  const [showLicenseModal, setShowLicenseModal] = useState(false);
 
   const load = <T,>(key: string, fallback: T, parser: (v: string) => T): T => {
     const val = localStorage.getItem(key);
@@ -50,6 +58,10 @@ const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
     document.body.classList.remove("theme-dark", "theme-light");
   }, [autoRun, showLineNumbers, highlightActiveLine, showActivityBar]);
 
+  const handleToggleLicenseModal = () => {
+    setShowLicenseModal(!showLicenseModal);
+  };
+
   return (
     <SettingsContext.Provider
       value={{
@@ -61,6 +73,9 @@ const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
         setHighlightActiveLine,
         showActivityBar,
         setShowActivityBar,
+        showLicenseModal,
+        setShowLicenseModal,
+        handleToggleLicenseModal,
       }}
     >
       {children}

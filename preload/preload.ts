@@ -18,6 +18,9 @@ contextBridge.exposeInMainWorld("api", {
   },
   importFile: () => ipcRenderer.invoke("import-file"),
   exportFile: (code: string) => ipcRenderer.invoke("export-file", code),
+  activateLicense: (key: string) => ipcRenderer.invoke("license:activate", key),
+  getStoredLicense: () => ipcRenderer.invoke("license:get"),
+  removeLicense: () => ipcRenderer.invoke("license:remove"),
   windowControls: {
     minimize: () => ipcRenderer.send("window:minimize"),
     maximize: () => ipcRenderer.send("window:maximize"),

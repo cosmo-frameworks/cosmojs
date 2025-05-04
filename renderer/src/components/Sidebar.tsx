@@ -1,9 +1,18 @@
-import { Play, StopCircle, Settings, FolderOpen, Save } from "lucide-react";
-import { motion } from "framer-motion";
 import { FC } from "react";
+import {
+  Play,
+  StopCircle,
+  Settings,
+  FolderOpen,
+  Save,
+  Crown,
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 import { useTheme } from "../hooks/useTheme";
 import { useTabs } from "../hooks/useTabs";
+import { useSettings } from "../hooks/useSettings";
+import { useLicense } from "../hooks/useLicense";
 
 interface SidebarPropsI {
   onRun: () => void;
@@ -18,6 +27,8 @@ export const Sidebar: FC<SidebarPropsI> = ({
 }) => {
   const { current } = useTheme();
   const { activeTab } = useTabs();
+  const { info } = useLicense();
+  const { handleToggleLicenseModal } = useSettings();
 
   return (
     <motion.div
@@ -46,6 +57,16 @@ export const Sidebar: FC<SidebarPropsI> = ({
       </div>
 
       <div className="flex flex-col items-center gap-4">
+        {info.plan === "free" && (
+          <button
+            onClick={handleToggleLicenseModal}
+            title="Activar"
+            className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
+          >
+            <Crown size={20} />
+          </button>
+        )}
+
         <button
           onClick={() => window.api.exportFile(activeTab.code)}
           title="Exportar pestaña como archivo"

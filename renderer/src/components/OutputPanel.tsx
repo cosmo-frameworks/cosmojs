@@ -13,7 +13,6 @@ interface OutputPanelPropsI {
 export const OutputPanel: FC<OutputPanelPropsI> = ({ output, hasRun }) => {
   const { showLineNumbers } = useSettings();
   const { current } = useTheme();
-  console.log(output);
 
   const renderLineNumbers = (text: string) => {
     return text

@@ -2,7 +2,7 @@
   "name": "cosmojs",
   "version": "1.0.0",
   "author": "Ridel Saavedra Flores <cosmoframeworks@gmail.com>",
-  "license": "Proprietary",
+  "license": "",
   "keywords": [],
   "main": "dist/main/main.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "copy-assets": "cpx \"assets/**/*\" dist/assets"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.15.0",
     "@types/semver": "^7.7.0",
     "concurrently": "^9.1.2",
@@ -26,7 +27,11 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "axios": "^1.9.0",
     "electron-updater": "^6.6.2",
+    "jsonwebtoken": "^9.0.2",
+    "node-machine-id": "^1.1.12",
+    "query-string": "^9.1.2",
     "vm2": "^3.9.19"
   },
   "repository": {

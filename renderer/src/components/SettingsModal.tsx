@@ -38,14 +38,17 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
-      <div className="bg-gray-100 text-gray-800 w-[700px] max-w-full rounded shadow-lg overflow-hidden flex">
+      <div
+        className="w-[700px] max-w-full rounded shadow-lg overflow-hidden flex"
+        style={{ backgroundColor: current.ui.panel, color: current.ui.text }}
+      >
         {/* Sidebar Tabs */}
-        <div className="w-44 bg-gray-200 border-r p-2">
+        <div className="w-44 border-r p-2">
           <div className="flex justify-between items-center mb-3 px-1">
-            <span className="text-sm font-semibold text-gray-700">Ajustes</span>
+            <span className="text-sm font-semibold">Ajustes</span>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-red-500 cursor-pointer"
+              className="hover:text-red-500 cursor-pointer"
             >
               <X size={16} />
             </button>
@@ -61,6 +64,10 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
                     ? "bg-white text-black shadow"
                     : "text-gray-600 hover:bg-white"
                 )}
+                style={{
+                  backgroundColor: current.ui.panel,
+                  color: current.ui.text,
+                }}
               >
                 {icon}
                 {label}
@@ -70,7 +77,7 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-6 overflow-y-auto text-sm">
+        <div className="flex-1 p-6 overflow-y-auto text-sm ">
           {tab === "appearance" && (
             <div className="space-y-5">
               <div>
@@ -78,7 +85,11 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
                 <select
                   value={current.name}
                   onChange={(e) => setTheme(e.target.value)}
-                  className="w-full bg-white border px-2 py-1 rounded"
+                  className="w-full border px-2 py-1 rounded"
+                  style={{
+                    backgroundColor: current.ui.panel,
+                    color: current.ui.text,
+                  }}
                 >
                   {themes.map((t) => (
                     <option key={t.name} value={t.name}>

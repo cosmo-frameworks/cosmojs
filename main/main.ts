@@ -2,11 +2,21 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { VM } from "vm2";
 import { dialog } from "electron";
 import { autoUpdater } from "electron-updater";
+import { machineIdSync } from "node-machine-id";
+import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
 
+import { BackendClient } from "./backendClient";
+
+const licPath = path.join(app.getPath("userData"), "license.json");
+const PUB_KEY = fs.readFileSync(path.join(__dirname, "../assets/pub.pem"));
+const machineId = machineIdSync(true);
+
 const isDev = !app.isPackaged;
 const gotTheLock = app.requestSingleInstanceLock();
+
+const backendClient = new BackendClient();
 
 let mainWindow: BrowserWindow;
 let splashWindow: BrowserWindow;
@@ -33,7 +43,6 @@ function createWindow() {
     minHeight: 560,
     frame: false,
     titleBarStyle: "hidden",
-    backgroundColor: "#1e1e2e",
     icon: path.join(__dirname, "../assets/app-icon.png"),
     show: false,
     webPreferences: {
@@ -55,14 +64,13 @@ function createWindow() {
       });
   }
 
-  //Cuando main esté listo, cerramos splash y mostramos main
   mainWindow.once("ready-to-show", () => {
     setTimeout(() => {
       if (splashWindow) {
         splashWindow.close();
       }
       mainWindow.show();
-    }, 5000);
+    }, 4000);
   });
 }
 
@@ -90,7 +98,7 @@ if (!gotTheLock) {
   });
 }
 
-// Eventos de actualización automática
+//Eventos de actualización automática
 autoUpdater.on("update-available", () => {
   console.log("Update disponible");
 });
@@ -115,9 +123,10 @@ ipcMain.on("install-update", () => {
   autoUpdater.quitAndInstall();
 });
 
+//IPC Para manejar archivos
 ipcMain.handle("import-file", async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog({
-    filters: [{ name: "Archivos", extensions: ["js", "json"] }],
+    filters: [{ name: "Archivos", extensions: ["js"] }],
     properties: ["openFile"],
   });
 
@@ -133,7 +142,7 @@ ipcMain.handle("export-file", async (_event, code: string) => {
   const { canceled, filePath } = await dialog.showSaveDialog({
     title: "Guardar código como archivo",
     defaultPath: "codigo.js",
-    filters: [{ name: "Archivos JS", extensions: ["js", "json"] }],
+    filters: [{ name: "Archivos JS", extensions: ["js"] }],
   });
 
   if (canceled || !filePath) return;
@@ -141,7 +150,7 @@ ipcMain.handle("export-file", async (_event, code: string) => {
   fs.writeFileSync(filePath, code, "utf-8");
 });
 
-// Eventos para ejecutar código seguro
+//IPC para ejecutar código seguro
 ipcMain.handle("run-code", async (_e, code: string) => {
   const serialize = (value: any, seen = new WeakMap()): any => {
     if (value === null || typeof value !== "object") {
@@ -227,6 +236,33 @@ ipcMain.on("window:maximize", () => {
 
 ipcMain.on("window:close", () => {
   BrowserWindow.getFocusedWindow()?.close();
+});
+
+//IPC Para controlar la licencia
+ipcMain.handle("license:get", async () => {
+  if (!fs.existsSync(licPath)) return null;
+  const token = fs.readFileSync(licPath, "utf-8");
+
+  try {
+    return jwt.verify(token, PUB_KEY, { algorithms: ["RS256"] });
+  } catch {
+    return null;
+  }
+});
+
+ipcMain.handle("license:activate", async (_e, key: string) => {
+  const { data } = await backendClient.post("/licenses/activate", {
+    key,
+    machineId,
+  });
+
+  if (!data.token) return null;
+  fs.writeFileSync(licPath, data.token, "utf-8");
+  return jwt.verify(data.token, PUB_KEY);
+});
+
+ipcMain.handle("license:remove", async () => {
+  if (fs.existsSync(licPath)) fs.unlinkSync(licPath);
 });
 
 app.on("window-all-closed", () => {

@@ -6,15 +6,17 @@ import { Header } from "./components/Header";
 import { EditorPanel } from "./components/EditorPanel";
 import { OutputPanel } from "./components/OutputPanel";
 import { SettingsModal } from "./components/SettingsModal";
+import { LicenseModal } from "./components/LicenseModal";
 
-import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useSettings } from "./hooks/useSettings";
-import { useUpdateNotification } from "./hooks/useUpdateNotification";
 import { useTheme } from "./hooks/useTheme";
 import { useTabs } from "./hooks/useTabs";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { useUpdateNotification } from "./hooks/useUpdateNotification";
 
 export const App = () => {
-  const { autoRun, showActivityBar } = useSettings();
+  const { autoRun, showActivityBar, showLicenseModal, setShowLicenseModal } =
+    useSettings();
   const { updateAvailable, triggerUpdate, progress } = useUpdateNotification();
   const { current } = useTheme();
   const { activeTab, updateActiveTab, createTabFromImport } = useTabs();
@@ -132,6 +134,11 @@ export const App = () => {
         <SettingsModal
           visible={showSettings}
           onClose={() => setShowSettings(false)}
+        />
+
+        <LicenseModal
+          visible={showLicenseModal}
+          onClose={() => setShowLicenseModal(false)}
         />
 
         <AnimatePresence>
