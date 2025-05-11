@@ -60,12 +60,14 @@ export const Header = () => {
           </div>
         ))}
 
-        <button
-          onClick={handleAddTab}
-          className="ml-2 p-1 rounded hover:text-white text-gray-400 cursor-pointer"
-        >
-          <Plus size={16} />
-        </button>
+        {tabs.length <= 6 && (
+          <button
+            onClick={handleAddTab}
+            className="ml-2 p-1 rounded hover:text-white text-gray-400 cursor-pointer"
+          >
+            <Plus size={16} />
+          </button>
+        )}
       </div>
 
       {/* Botones de ventana */}

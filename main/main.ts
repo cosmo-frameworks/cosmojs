@@ -6,8 +6,10 @@ import { machineIdSync } from "node-machine-id";
 import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
+import axios from "axios";
 
-import { BackendClient } from "./backendClient";
+app.setName("CosmoJS");
+app.setAppUserModelId("com.cosmoframeworks.cosmojs");
 
 const licPath = path.join(app.getPath("userData"), "license.json");
 const PUB_KEY = fs.readFileSync(path.join(__dirname, "../assets/pub.pem"));
@@ -15,8 +17,6 @@ const machineId = machineIdSync(true);
 
 const isDev = !app.isPackaged;
 const gotTheLock = app.requestSingleInstanceLock();
-
-const backendClient = new BackendClient();
 
 let mainWindow: BrowserWindow;
 let splashWindow: BrowserWindow;
@@ -251,10 +251,13 @@ ipcMain.handle("license:get", async () => {
 });
 
 ipcMain.handle("license:activate", async (_e, key: string) => {
-  const { data } = await backendClient.post("/licenses/activate", {
-    key,
-    machineId,
-  });
+  const { data } = await axios.post(
+    "htts://api.shakarzr.com/api/licenses/activate",
+    {
+      key,
+      machineId,
+    }
+  );
 
   if (!data.token) return null;
   fs.writeFileSync(licPath, data.token, "utf-8");
