@@ -2,29 +2,33 @@ import { useEffect, useState } from "react";
 
 export const useUpdateNotification = () => {
   const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const handleUpdateAvailable = () => {
-      setUpdateAvailable(true);
-    };
+    const onAvailable = () => setUpdateAvailable(true);
+    const onProgress = (p: number) => setProgress(p);
+    const onDownloaded = () => setDownloaded(true);
 
-    const handleDownloadProgress = (percent: number) => {
-      setProgress(percent);
-    };
-
-    window.api?.on?.("update-available", handleUpdateAvailable);
-    window.api?.on?.("update-download-progress", handleDownloadProgress);
+    window.api.on("update-available", onAvailable);
+    window.api.on("update-download-progress", onProgress);
+    window.api.on("update-downloaded", onDownloaded);
 
     return () => {
-      window.api?.off?.("update-available", handleUpdateAvailable);
-      window.api?.off?.("update-download-progress", handleDownloadProgress);
+      window.api.off("update-available", onAvailable);
+      window.api.off("update-download-progress", onProgress);
+      window.api.off("update-downloaded", onDownloaded);
     };
   }, []);
 
   const triggerUpdate = () => {
-    window.api?.send?.("install-update");
+    window.api.send("install-update");
   };
 
-  return { updateAvailable, triggerUpdate, progress };
+  return {
+    updateAvailable,
+    downloaded,
+    progress,
+    triggerUpdate,
+  };
 };

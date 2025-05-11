@@ -47,7 +47,6 @@
     "files": [
       "dist/**/*",
       "renderer/dist/**/*",
-      "node_modules/**/*",
       "package.json"
     ],
     "win": {

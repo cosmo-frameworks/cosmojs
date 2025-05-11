@@ -100,7 +100,7 @@ if (!gotTheLock) {
 
 //Eventos de actualización automática
 autoUpdater.on("update-available", () => {
-  console.log("Update disponible");
+  mainWindow.webContents.send("update-available");
 });
 
 autoUpdater.on("update-downloaded", () => {
