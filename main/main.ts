@@ -8,9 +8,6 @@ import fs from "fs";
 import path from "path";
 import axios from "axios";
 
-app.setName("CosmoJS");
-app.setAppUserModelId("com.cosmoframeworks.cosmojs");
-
 const licPath = path.join(app.getPath("userData"), "license.json");
 const PUB_KEY = fs.readFileSync(path.join(__dirname, "../assets/pub.pem"));
 const machineId = machineIdSync(true);
