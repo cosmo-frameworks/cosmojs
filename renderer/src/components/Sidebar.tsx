@@ -30,6 +30,32 @@ export const Sidebar: FC<SidebarPropsI> = ({
   const { info } = useLicense();
   const { handleToggleLicenseModal } = useSettings();
 
+  const exportFile = () => {
+    if (info.plan === "free") {
+      handleToggleLicenseModal();
+    } else {
+      window.api.exportFile(activeTab.code);
+    }
+  };
+
+  const importFile = async () => {
+    if (info.plan === "free") {
+      handleToggleLicenseModal();
+    } else {
+      const content = await window.api.importFile();
+      if (content) {
+        window.dispatchEvent(
+          new CustomEvent("imported-code", {
+            detail: {
+              code: content.code,
+              name: content.name || "importado",
+            },
+          })
+        );
+      }
+    }
+  };
+
   return (
     <motion.div
       initial={{ x: -80, opacity: 0 }}
@@ -60,7 +86,7 @@ export const Sidebar: FC<SidebarPropsI> = ({
         {info.plan === "free" && (
           <button
             onClick={handleToggleLicenseModal}
-            title="Activar"
+            title="Activar licencia"
             className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
           >
             <Crown size={20} />
@@ -68,7 +94,7 @@ export const Sidebar: FC<SidebarPropsI> = ({
         )}
 
         <button
-          onClick={() => window.api.exportFile(activeTab.code)}
+          onClick={exportFile}
           title="Exportar pestaña como archivo"
           className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
         >
@@ -76,19 +102,7 @@ export const Sidebar: FC<SidebarPropsI> = ({
         </button>
 
         <button
-          onClick={async () => {
-            const content = await window.api.importFile();
-            if (content) {
-              window.dispatchEvent(
-                new CustomEvent("imported-code", {
-                  detail: {
-                    code: content.code,
-                    name: content.name || "importado",
-                  },
-                })
-              );
-            }
-          }}
+          onClick={importFile}
           title="Importar archivo .js"
           className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
         >

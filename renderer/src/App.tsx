@@ -23,14 +23,14 @@ export const App = () => {
 
   const [showSettings, setShowSettings] = useState(false);
 
-  const runCode = async (inputCode: string) => {
+  const runCode = async (inputCode: string): Promise<void> => {
     const trimmed = inputCode.trim();
-    if (
-      !trimmed ||
-      trimmed
-        .split("\n")
-        .every((line) => line.trim().startsWith("//") || line.trim() === "")
-    ) {
+    const onlyCommentsOrEmpty = trimmed.split("\n").every((line) => {
+      const t = line.trim();
+      return t === "" || t.startsWith("//");
+    });
+
+    if (!trimmed || onlyCommentsOrEmpty) {
       updateActiveTab({ output: "", hasRun: false });
       return;
     }
@@ -38,21 +38,17 @@ export const App = () => {
     try {
       const response = await window.api.runCode(inputCode);
 
-      // fallback si sigue viniendo un string
-      if (typeof response === "string") {
-        updateActiveTab({ output: response, hasRun: true });
-        return;
-      }
-
-      const { logs, result, error } = response;
-
       updateActiveTab({
-        output: { logs, result, error },
+        output: response,
         hasRun: true,
       });
     } catch (err) {
       updateActiveTab({
-        output: { logs: [], result: null, error: String(err) },
+        output: {
+          logs: [],
+          result: null,
+          error: { __type: "Error", name: "IPCError", message: String(err) },
+        },
         hasRun: true,
       });
     }

@@ -6,6 +6,7 @@ import { useSettings } from "../hooks/useSettings";
 import { useTheme } from "../hooks/useTheme";
 
 import { themes } from "../themes/themeDefinitions";
+import { useLicense } from "../hooks/useLicense";
 
 interface SettingsModalPropsI {
   visible: boolean;
@@ -25,7 +26,9 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
     setHighlightActiveLine,
     showActivityBar,
     setShowActivityBar,
+    handleToggleLicenseModal,
   } = useSettings();
+  const { info } = useLicense();
   const { current, setTheme } = useTheme();
 
   const [tab, setTab] = useState<"appearance">("appearance");
@@ -35,6 +38,19 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
   const tabs = [
     { key: "appearance", label: "Apariencia", icon: <Palette size={16} /> },
   ];
+
+  const handleSelectTheme = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedName = e.target.value;
+    const selectedTheme = themes.find((t) => t.name === selectedName);
+    if (!selectedTheme) return;
+
+    if (selectedTheme.pro && info.plan === "free") {
+      handleToggleLicenseModal();
+      return;
+    }
+
+    setTheme(selectedName);
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
@@ -84,7 +100,7 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
                 <label className="block text-sm font-medium mb-1">Tema</label>
                 <select
                   value={current.name}
-                  onChange={(e) => setTheme(e.target.value)}
+                  onChange={handleSelectTheme}
                   className="w-full border px-2 py-1 rounded"
                   style={{
                     backgroundColor: current.ui.panel,

@@ -1,5 +1,11 @@
-import { app, BrowserWindow, ipcMain } from "electron";
-import { VM } from "vm2";
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  IpcMainInvokeEvent,
+  shell,
+} from "electron";
+import { VM, NodeVM } from "vm2";
 import { dialog } from "electron";
 import { autoUpdater } from "electron-updater";
 import { machineIdSync } from "node-machine-id";
@@ -17,6 +23,100 @@ const gotTheLock = app.requestSingleInstanceLock();
 
 let mainWindow: BrowserWindow;
 let splashWindow: BrowserWindow;
+
+type LogLevel = "log" | "debug" | "info" | "warn" | "error";
+
+interface LogEntry {
+  level: LogLevel;
+  data: unknown[];
+}
+
+interface RunResult {
+  result: unknown | null;
+  error: Error | null;
+}
+
+interface RunCodeResponse {
+  logs: LogEntry[];
+  result: unknown | null;
+  error: {
+    __type: "Error";
+    name: string;
+    message: string;
+    stack?: string;
+  } | null;
+}
+
+function serialize(value: unknown, seen = new WeakSet<object>()): unknown {
+  if (value === null || typeof value !== "object") {
+    if (typeof value === "bigint") {
+      return value.toString() + "n";
+    }
+    if (typeof value === "symbol") {
+      return `Symbol(${(value as symbol).description ?? ""})`;
+    }
+    if (typeof value === "function") {
+      return `[Function ${(value as Function).name || "anonymous"}]`;
+    }
+    return value;
+  }
+
+  if (seen.has(value as object)) return "[Circular]";
+  seen.add(value as object);
+
+  if (value instanceof Error) {
+    return {
+      __type: "Error" as const,
+      name: value.name,
+      message: value.message,
+      stack: value.stack,
+    };
+  }
+
+  // Colecciones y tipos especiales
+  if (value instanceof Map) {
+    return {
+      __type: "Map" as const,
+      value: Array.from(value.entries()).map(([k, v]) => [
+        serialize(k, seen),
+        serialize(v, seen),
+      ]),
+    };
+  }
+
+  if (value instanceof Set) {
+    return {
+      __type: "Set" as const,
+      value: Array.from(value).map((v) => serialize(v, seen)),
+    };
+  }
+
+  if (value instanceof Date) {
+    return { __type: "Date" as const, value: value.toISOString() };
+  }
+
+  if (value instanceof RegExp) {
+    return { __type: "RegExp" as const, value: value.toString() };
+  }
+
+  const typed = value as unknown as ArrayLike<unknown>;
+  if (ArrayBuffer.isView(value)) {
+    return {
+      __type: value.constructor.name as string,
+      value: Array.from(typed),
+    };
+  }
+
+  // Objetos y arrays genéricos
+  const out: Record<string, unknown> | unknown[] = Array.isArray(value)
+    ? []
+    : {};
+  Reflect.ownKeys(value).forEach((key) => {
+    // @ts-ignore -- index signature
+    out[key as string] = serialize((value as any)[key], seen);
+  });
+  return out;
+}
 
 function createWindow() {
   splashWindow = new BrowserWindow({
@@ -85,6 +185,18 @@ if (!gotTheLock) {
     app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      shell.openExternal(url);
+      return { action: "deny" };
+    });
+
+    mainWindow.webContents.on("will-navigate", (event, url) => {
+      if (url !== mainWindow.webContents.getURL()) {
+        event.preventDefault();
+        shell.openExternal(url);
+      }
+    });
   });
 
   app.on("second-instance", () => {
@@ -148,74 +260,84 @@ ipcMain.handle("export-file", async (_event, code: string) => {
 });
 
 //IPC para ejecutar código seguro
-ipcMain.handle("run-code", async (_e, code: string) => {
-  const serialize = (value: any, seen = new WeakMap()): any => {
-    if (value === null || typeof value !== "object") {
-      if (typeof value === "function")
-        return `[Function ${value.name || "anonymous"}]`;
-      return value; // primitivos OK
-    }
-    if (seen.has(value)) return "[Circular]"; // corta ciclos
-    seen.set(value, true);
+ipcMain.handle(
+  "run-code",
+  async (
+    _event: IpcMainInvokeEvent,
+    code: string
+  ): Promise<RunCodeResponse> => {
+    const logs: LogEntry[] = [];
 
-    // Tipos built‑in
-    if (value instanceof Date)
-      return { __type: "Date", value: value.toISOString() };
-    if (value instanceof RegExp)
-      return { __type: "RegExp", value: value.toString() };
-    if (value instanceof Map) {
-      return {
-        __type: "Map",
-        value: Array.from(value.entries()).map(([k, v]) => [
-          serialize(k, seen),
-          serialize(v, seen),
-        ]),
-      };
-    }
-    if (value instanceof Set) {
-      return {
-        __type: "Set",
-        value: Array.from(value).map((v) => serialize(v, seen)),
-      };
-    }
-    if (ArrayBuffer.isView(value)) {
-      return {
-        __type: value.constructor.name,
-        value: Array.from(value as any),
-      };
-    }
-
-    // Objetos / arrays normales
-    const out: any = Array.isArray(value) ? [] : {};
-    Reflect.ownKeys(value).forEach((k) => {
-      out[k as any] = serialize((value as any)[k], seen);
-    });
-    return out;
-  };
-
-  try {
-    const logs: any[] = [];
-
-    const vm = new VM({
-      timeout: 1_000,
-      sandbox: {
-        console: {
-          log: (...args: any[]) => logs.push(...args.map((a) => serialize(a))),
-        },
+    // Configuración de la sandbox
+    const vm = new NodeVM({
+      console: "redirect", // redirige console.* hacia los eventos
+      sandbox: {}, // sin variables globales predefinidas
+      timeout: 1_000, // timeout en ms
+      eval: false, // deshabilita eval()
+      wasm: false, // deshabilita WebAssembly
+      require: {
+        external: false, // no permitir require de módulos npm
+        builtin: [], // ningún módulo builtin accesible
+        mock: {}, // espacio para mocks si los necesitas
       },
     });
 
-    const result = vm.run(`(function () { ${code} })()`);
+    // Captura de todos los niveles de console
+    vm.on("console.log", (...args: unknown[]) =>
+      logs.push({ level: "log", data: args })
+    );
+    vm.on("console.debug", (...args: unknown[]) =>
+      logs.push({ level: "debug", data: args })
+    );
+    vm.on("console.info", (...args: unknown[]) =>
+      logs.push({ level: "info", data: args })
+    );
+    vm.on("console.warn", (...args: unknown[]) =>
+      logs.push({ level: "warn", data: args })
+    );
+    vm.on("console.error", (...args: unknown[]) =>
+      logs.push({ level: "error", data: args })
+    );
 
-    return {
-      logs,
-      result: result === undefined ? undefined : serialize(result),
-      error: null,
-    };
-  } catch (err) {
-    return { logs: [], result: null, error: String(err) };
+    try {
+      // Envolvemos el código del usuario en un IIFE async
+      const wrapper = `
+        (async () => {
+          try {
+            const res = await (async () => { ${code} })();
+            return { result: res, error: null };
+          } catch(e) {
+            return { result: null, error: e };
+          }
+        })()
+      `;
+
+      const runResult = (await vm.run(wrapper, "user-code.js")) as RunResult;
+
+      return {
+        logs: logs.map((entry) => ({
+          level: entry.level,
+          data: entry.data.map((arg) => serialize(arg)),
+        })),
+        result: runResult.error ? null : serialize(runResult.result),
+        error: runResult.error
+          ? (serialize(runResult.error) as RunCodeResponse["error"])
+          : null,
+      };
+    } catch (err) {
+      return {
+        logs: [],
+        result: null,
+        error: {
+          __type: "Error",
+          name: err instanceof Error ? err.name : "UnknownError",
+          message: String(err),
+          stack: err instanceof Error ? err.stack : undefined,
+        },
+      };
+    }
   }
-});
+);
 
 // IPC para controlar la ventana
 ipcMain.on("window:minimize", () => {
@@ -249,7 +371,7 @@ ipcMain.handle("license:get", async () => {
 
 ipcMain.handle("license:activate", async (_e, key: string) => {
   const { data } = await axios.post(
-    "htts://api.shakarzr.com/api/licenses/activate",
+    "https://api.shakarzr.com/api/licenses/activate",
     {
       key,
       machineId,

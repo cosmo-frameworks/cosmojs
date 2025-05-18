@@ -1,12 +1,13 @@
 import { createContext, useEffect, useState } from "react";
+
 import { UITheme, themes } from "../themes/themeDefinitions";
 
-interface ThemeContextProps {
+interface ThemeContextPropsI {
   current: UITheme;
   setTheme: (name: string) => void;
 }
 
-const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextPropsI | undefined>(undefined);
 
 const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [themeName, setThemeName] = useState<string>("auto");

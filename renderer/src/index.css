@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* Scrollbar minimalista opcional */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -9,14 +8,6 @@
   background-color: #555;
   border-radius: 4px;
 }
-
-/* .theme-dark {
-  @apply bg-runjsBg text-white;
-}
-
-.theme-light {
-  @apply bg-white text-black;
-} */
 
 @keyframes progress-animation {
   0% {

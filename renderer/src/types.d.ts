@@ -1,12 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export {};
+export type LogLevel = "log" | "debug" | "info" | "warn" | "error";
+
+export interface LogEntry {
+  level: LogLevel;
+  data: unknown[];
+}
+
+export interface SerializedError {
+  __type: "Error";
+  name: string;
+  message: string;
+  stack?: string;
+}
+
+export interface RunCodeResponse {
+  logs: LogEntry[];
+  result: unknown;
+  error: SerializedError | null;
+}
 
 declare global {
   interface Window {
     api: {
-      runCode: (
-        code: string
-      ) => Promise<{ logs: any[]; result: any; error: string | null }>;
+      runCode: (code: string) => Promise<RunCodeResponse>;
       send: (channel: string, data?: any) => void;
       on: (channel: string, callback: (...args: any[]) => void) => void;
       off: (channel: string, callback: (...args: any[]) => void) => void;
@@ -23,3 +39,5 @@ declare global {
     };
   }
 }
+
+export {};

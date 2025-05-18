@@ -79,5 +79,6 @@ export const themes: UITheme[] = [
       text: "#f92aad",
       accent: "#e2b714",
     },
+    pro: true,
   },
 ];
