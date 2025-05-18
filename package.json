@@ -2,7 +2,7 @@
   "name": "cosmojs",
   "version": "1.0.0",
   "author": "Ridel Saavedra Flores <cosmoframeworks@gmail.com>",
-  "license": "",
+  "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [],
   "main": "dist/main/main.js",
   "scripts": {
