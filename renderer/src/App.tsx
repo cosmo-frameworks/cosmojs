@@ -13,6 +13,7 @@ import { useTheme } from "./hooks/useTheme";
 import { useTabs } from "./hooks/useTabs";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useUpdateNotification } from "./hooks/useUpdateNotification";
+import { PremiumFeaturesModal } from "./components/PremiumFeaturesModal";
 
 export const App = () => {
   const { autoRun, showActivityBar, showLicenseModal, setShowLicenseModal } =
@@ -22,6 +23,7 @@ export const App = () => {
   const { activeTab, updateActiveTab, createTabFromImport } = useTabs();
 
   const [showSettings, setShowSettings] = useState(false);
+  const [showPremium, setShowPremium] = useState(false);
 
   const runCode = async (inputCode: string): Promise<void> => {
     const trimmed = inputCode.trim();
@@ -113,6 +115,7 @@ export const App = () => {
             onRun={() => runCode(activeTab.code)}
             onStop={clearOutput}
             onToggleSettings={() => setShowSettings(true)}
+            onOpenPremium={() => setShowPremium(true)}
           />
         )}
 
@@ -130,6 +133,11 @@ export const App = () => {
         <SettingsModal
           visible={showSettings}
           onClose={() => setShowSettings(false)}
+        />
+
+        <PremiumFeaturesModal
+          visible={showPremium}
+          onClose={() => setShowPremium(false)}
         />
 
         <LicenseModal

@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "author": "Ridel Saavedra Flores <cosmoframeworks@gmail.com>",
   "license": "SEE LICENSE IN LICENSE.md",
-  "keywords": [],
+  "keywords": [
+    "cosmo-frameworks",
+    "electron",
+    "typescript",
+    "node",
+    "react",
+    "electron-builder"
+  ],
   "main": "dist/main/main.js",
   "scripts": {
     "start:electron": "electron dist/main/main.js",

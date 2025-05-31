@@ -13,7 +13,7 @@ interface OutputPanelPropsI {
 }
 
 export const OutputPanel: FC<OutputPanelPropsI> = ({ output, hasRun }) => {
-  const { showLineNumbers } = useSettings();
+  const { showLineNumbers, fontSize } = useSettings();
   const { current } = useTheme();
 
   const renderLineNumbers = (text: string) =>
@@ -62,6 +62,7 @@ export const OutputPanel: FC<OutputPanelPropsI> = ({ output, hasRun }) => {
       style={{
         backgroundColor: current.ui.panel,
         color: current.ui.text,
+        fontSize: `${fontSize}px`,
       }}
     >
       {!hasRun && <span>Salida aparecerá aquí…</span>}

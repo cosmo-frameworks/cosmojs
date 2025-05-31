@@ -12,7 +12,8 @@ interface EditorPanelPropsI {
 }
 
 export const EditorPanel: FC<EditorPanelPropsI> = ({ code, setCode }) => {
-  const { showLineNumbers, highlightActiveLine } = useSettings();
+  const { showLineNumbers, highlightActiveLine, fontSize, autocomplete } =
+    useSettings();
   const { current } = useTheme();
 
   const handleEditorMount: OnMount = (_, monacoInstance) => {
@@ -35,12 +36,15 @@ export const EditorPanel: FC<EditorPanelPropsI> = ({ code, setCode }) => {
         theme={current.name}
         onMount={handleEditorMount}
         options={{
-          fontSize: 14,
+          fontSize: fontSize,
           fontFamily: "Fira Code, monospace",
           lineNumbers: showLineNumbers ? "on" : "off",
           renderLineHighlight: highlightActiveLine ? "line" : "none",
           minimap: { enabled: false },
           automaticLayout: true,
+          quickSuggestions: autocomplete,
+          suggestOnTriggerCharacters: autocomplete,
+          acceptSuggestionOnEnter: autocomplete ? "on" : "off",
         }}
       />
     </div>

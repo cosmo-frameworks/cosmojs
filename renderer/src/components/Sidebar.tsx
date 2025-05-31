@@ -6,6 +6,7 @@ import {
   FolderOpen,
   Save,
   Crown,
+  Star,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -18,12 +19,14 @@ interface SidebarPropsI {
   onRun: () => void;
   onStop: () => void;
   onToggleSettings: () => void;
+  onOpenPremium: () => void;
 }
 
 export const Sidebar: FC<SidebarPropsI> = ({
   onRun,
   onStop,
   onToggleSettings,
+  onOpenPremium,
 }) => {
   const { current } = useTheme();
   const { activeTab } = useTabs();
@@ -69,25 +72,34 @@ export const Sidebar: FC<SidebarPropsI> = ({
         <button
           onClick={onRun}
           title="Ejecutar"
-          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
+          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer hover:bg-white/10"
         >
           <Play size={20} />
         </button>
+
         <button
           onClick={onStop}
           title="Detener"
-          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
+          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer hover:bg-white/10"
         >
           <StopCircle size={20} />
         </button>
       </div>
 
       <div className="flex flex-col items-center gap-4">
+        <button
+          onClick={onOpenPremium}
+          title="Funciones Premium"
+          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer hover:bg-white/10"
+        >
+          <Star size={20} />
+        </button>
+
         {info.plan === "free" && (
           <button
             onClick={handleToggleLicenseModal}
             title="Activar licencia"
-            className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded cursor-pointer hover:bg-white/10"
           >
             <Crown size={20} />
           </button>
@@ -96,7 +108,7 @@ export const Sidebar: FC<SidebarPropsI> = ({
         <button
           onClick={exportFile}
           title="Exportar pestaña como archivo"
-          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
+          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer hover:bg-white/10"
         >
           <Save size={20} />
         </button>
@@ -104,7 +116,7 @@ export const Sidebar: FC<SidebarPropsI> = ({
         <button
           onClick={importFile}
           title="Importar archivo .js"
-          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
+          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer hover:bg-white/10"
         >
           <FolderOpen size={20} />
         </button>
@@ -112,7 +124,7 @@ export const Sidebar: FC<SidebarPropsI> = ({
         <button
           onClick={onToggleSettings}
           title="Configuración"
-          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer"
+          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer hover:bg-white/10"
         >
           <Settings size={20} />
         </button>

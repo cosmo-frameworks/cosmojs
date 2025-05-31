@@ -10,7 +10,11 @@ interface SettingsContextType {
   showActivityBar: boolean;
   setShowActivityBar: (v: boolean) => void;
   showLicenseModal: boolean;
+  fontSize: number;
+  setFontSize: (v: number) => void;
   setShowLicenseModal: (v: boolean) => void;
+  autocomplete: boolean;
+  setAutocomplete: (v: boolean) => void;
   handleToggleLicenseModal: () => void;
 }
 
@@ -23,11 +27,13 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 );
 
 const SettingsProvider: FC<SettingsProviderPropsI> = ({ children }) => {
-  const [autoRun, setAutoRun] = useState(true);
-  const [showLineNumbers, setShowLineNumbers] = useState(true);
-  const [highlightActiveLine, setHighlightActiveLine] = useState(true);
-  const [showActivityBar, setShowActivityBar] = useState(true);
-  const [showLicenseModal, setShowLicenseModal] = useState(false);
+  const [autoRun, setAutoRun] = useState<boolean>(true);
+  const [showLineNumbers, setShowLineNumbers] = useState<boolean>(true);
+  const [highlightActiveLine, setHighlightActiveLine] = useState<boolean>(true);
+  const [showActivityBar, setShowActivityBar] = useState<boolean>(true);
+  const [showLicenseModal, setShowLicenseModal] = useState<boolean>(false);
+  const [autocomplete, setAutocomplete] = useState<boolean>(true);
+  const [fontSize, setFontSize] = useState<number>(14);
 
   const load = <T,>(key: string, fallback: T, parser: (v: string) => T): T => {
     const val = localStorage.getItem(key);
@@ -45,6 +51,8 @@ const SettingsProvider: FC<SettingsProviderPropsI> = ({ children }) => {
     setShowActivityBar(
       load("settings_show_sidebar", true, (v) => v === "true")
     );
+    setFontSize(load("settings_font_size", 14, (v) => parseInt(v, 10)));
+    setAutocomplete(load("settings_autocomplete", true, (v) => v === "true"));
   }, []);
 
   useEffect(() => {
@@ -55,12 +63,19 @@ const SettingsProvider: FC<SettingsProviderPropsI> = ({ children }) => {
       highlightActiveLine.toString()
     );
     localStorage.setItem("settings_show_sidebar", showActivityBar.toString());
+    localStorage.setItem("settings_font_size", fontSize.toString());
+    localStorage.setItem("settings_autocomplete", autocomplete.toString());
     document.body.classList.remove("theme-dark", "theme-light");
-  }, [autoRun, showLineNumbers, highlightActiveLine, showActivityBar]);
+  }, [
+    autoRun,
+    showLineNumbers,
+    highlightActiveLine,
+    showActivityBar,
+    fontSize,
+    autocomplete,
+  ]);
 
-  const handleToggleLicenseModal = () => {
-    setShowLicenseModal(!showLicenseModal);
-  };
+  const handleToggleLicenseModal = () => setShowLicenseModal(!showLicenseModal);
 
   return (
     <SettingsContext.Provider
@@ -75,6 +90,10 @@ const SettingsProvider: FC<SettingsProviderPropsI> = ({ children }) => {
         setShowActivityBar,
         showLicenseModal,
         setShowLicenseModal,
+        fontSize,
+        setFontSize,
+        autocomplete,
+        setAutocomplete,
         handleToggleLicenseModal,
       }}
     >
