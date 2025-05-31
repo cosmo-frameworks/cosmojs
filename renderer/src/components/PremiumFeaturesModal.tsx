@@ -1,10 +1,10 @@
-// renderer/src/components/PremiumFeaturesModal.tsx
-import { FC } from "react";
+import { FC, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle } from "lucide-react";
 import clsx from "clsx";
 
 import { useTheme } from "../hooks/useTheme";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 interface PremiumFeaturesModalProps {
   visible: boolean;
@@ -22,6 +22,9 @@ export const PremiumFeaturesModal: FC<PremiumFeaturesModalProps> = ({
   visible,
   onClose,
 }) => {
+  const innerRef = useRef<HTMLDivElement>(null!);
+  useOnClickOutside(innerRef, () => onClose());
+
   const { current } = useTheme();
 
   return (
@@ -34,6 +37,7 @@ export const PremiumFeaturesModal: FC<PremiumFeaturesModalProps> = ({
           exit={{ opacity: 0 }}
         >
           <motion.div
+            ref={innerRef}
             className={clsx(
               "rounded-lg shadow-xl w-96 max-w-full p-6",
               "flex flex-col"

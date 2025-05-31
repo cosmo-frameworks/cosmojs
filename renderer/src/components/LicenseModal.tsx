@@ -1,9 +1,10 @@
-import { FC, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useLicense } from "../hooks/useLicense";
 import { useTheme } from "../hooks/useTheme";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 interface LicenseModalPropsI {
   visible: boolean;
@@ -11,6 +12,9 @@ interface LicenseModalPropsI {
 }
 
 export const LicenseModal: FC<LicenseModalPropsI> = ({ visible, onClose }) => {
+  const innerRef = useRef<HTMLDivElement>(null!);
+  useOnClickOutside(innerRef, () => onClose());
+
   const { activate } = useLicense();
   const { current } = useTheme();
 
@@ -40,6 +44,7 @@ export const LicenseModal: FC<LicenseModalPropsI> = ({ visible, onClose }) => {
           exit={{ opacity: 0 }}
         >
           <motion.div
+            ref={innerRef}
             className="rounded-lg shadow-xl w-[480px] max-w-full p-6"
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

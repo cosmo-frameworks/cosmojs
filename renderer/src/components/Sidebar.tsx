@@ -87,13 +87,15 @@ export const Sidebar: FC<SidebarPropsI> = ({
       </div>
 
       <div className="flex flex-col items-center gap-4">
-        <button
-          onClick={onOpenPremium}
-          title="Funciones Premium"
-          className="w-8 h-8 flex items-center justify-center rounded cursor-pointer hover:bg-white/10"
-        >
-          <Star size={20} />
-        </button>
+        {info.plan === "free" && (
+          <button
+            onClick={onOpenPremium}
+            title="Funciones Premium"
+            className="w-8 h-8 flex items-center justify-center rounded cursor-pointer hover:bg-white/10"
+          >
+            <Star size={20} />
+          </button>
+        )}
 
         {info.plan === "free" && (
           <button

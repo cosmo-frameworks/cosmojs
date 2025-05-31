@@ -1,13 +1,14 @@
-import { FC, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Palette, Settings, X } from "lucide-react";
 import clsx from "clsx";
 
 import { useSettings } from "../hooks/useSettings";
 import { useTheme } from "../hooks/useTheme";
+import { useLicense } from "../hooks/useLicense";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 import { themes } from "../themes/themeDefinitions";
-import { useLicense } from "../hooks/useLicense";
 import { capitalizeFirstLetter } from "../utils/basics";
 
 interface SettingsModalPropsI {
@@ -19,6 +20,9 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
   visible,
   onClose,
 }) => {
+  const innerRef = useRef<HTMLDivElement>(null!);
+  useOnClickOutside(innerRef, () => onClose());
+
   const {
     autoRun,
     setAutoRun,
@@ -67,6 +71,7 @@ export const SettingsModal: FC<SettingsModalPropsI> = ({
           exit={{ opacity: 0 }}
         >
           <motion.div
+            ref={innerRef}
             className={clsx(
               "rounded-lg shadow-xl w-[700px] max-w-full p-6",
               "flex"
